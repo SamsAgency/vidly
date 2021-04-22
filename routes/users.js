@@ -7,6 +7,7 @@ const router = express.Router();
 const config = require('config');
 const jwt = require('jsonwebtoken')
 const auth = require('../middlewares/auth')
+const admin = require('../middlewares/admin')
 
 
 // get the current user
@@ -14,6 +15,7 @@ router.get('/me', auth, async(req, res) => {
     const user = await User.findById(req.user._id).select('-password')
     res.send(user)
 })
+
 
 // posting a user
 router.post('/', async (req, res) => {
@@ -51,7 +53,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // deleting a user
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     const user = await User.findByIdAndRemove(req.params.id)
     if (!user) return res.status(404).send('That user does not exist')
     res.send(user)
